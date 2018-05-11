@@ -331,8 +331,13 @@ package FeMetabolism
     Fe_output = v_liv_1*min(Fe_ser, th) + v_liv_2*max(Fe_ser - th, 0) + (v_bm
        + v_duo + v_res)*Fe_ser;
 
-    annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
-          coordinateSystem(preserveAspectRatio=false)));
+    annotation (
+      Icon(coordinateSystem(preserveAspectRatio=false)),
+      Diagram(coordinateSystem(preserveAspectRatio=false)),
+      experiment(
+        StopTime=100,
+        __Dymola_NumberOfIntervals=1500,
+        Tolerance=1e-009));
   end FeMetabolismModel;
 
   function facB1 "facB1 function (id f9)"
@@ -436,8 +441,23 @@ package FeMetabolism
     input Real hill_i2;
     input Real hill_i3;
     output Real hill_o1 "result";
+    constant Real eps=1e-9;
+    Real i1_lim;
+    Real i3_lim;
   algorithm
-    hill_o1 := (hill_i1^hill_i2)/(hill_i1^hill_i2 + hill_i3^hill_i2);
+    if hill_i1 < eps then
+      i1_lim := eps;
+    else
+      i1_lim := hill_i1;
+    end if;
+
+    if hill_i3 < eps then
+      i3_lim := eps;
+    else
+      i3_lim := hill_i3;
+    end if;
+
+    hill_o1 := (i1_lim^hill_i2)/(i1_lim^hill_i2 + i3_lim^hill_i2);
   end hill;
 
   function Promoter "Promoter occupancy function (id f15)"
